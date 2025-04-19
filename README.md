@@ -27,8 +27,10 @@ cd audio_craft
 ```bash
 pip install -r requirements.txt
 ```
-- pip install -r requirements.txt
-- conda install "ffmpeg<5" -c conda-forge
+3. Install ffmpeg:
+```bash
+conda install "ffmpeg<5" -c conda-forge
+```
 
 ## Usage
 
