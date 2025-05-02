@@ -33,6 +33,8 @@ conda install "ffmpeg<5" -c conda-forge
 ```
 
 ## Usage
+Run the Notebook solution.ipynb to generate music.
+
 
 ## References
 - [Generating New Music with Artificial Intelligence](https://www.educative.io/projects/generating-new-music-with-artificial-intelligence)
