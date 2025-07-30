@@ -1,7 +1,4 @@
 import streamlit as st
-import torch
-import torchaudio
-from audiocraft.models import MusicGen
 import numpy as np
 import warnings
 import os
@@ -17,6 +14,16 @@ if sys.platform == "darwin":
     import logging
     logging.getLogger().setLevel(logging.ERROR)
 
+# Try to import AudioCraft dependencies
+try:
+    import torch
+    import torchaudio
+    from audiocraft.models import MusicGen
+    AUDIOCRAFT_AVAILABLE = True
+except ImportError as e:
+    AUDIOCRAFT_AVAILABLE = False
+    IMPORT_ERROR = str(e)
+
 st.set_page_config(
     page_title="AudioCraft Music Generator",
     page_icon="🎵",
@@ -27,6 +34,9 @@ st.set_page_config(
 @st.cache_resource
 def load_model():
     """Load the MusicGen model and cache it for reuse"""
+    if not AUDIOCRAFT_AVAILABLE:
+        return None
+        
     try:
         with st.spinner("Loading MusicGen model... This may take a moment."):
             model = MusicGen.get_pretrained('facebook/musicgen-small')
@@ -38,6 +48,9 @@ def load_model():
 
 def generate_music(model, prompt):
     """Generate music from text prompt"""
+    if not AUDIOCRAFT_AVAILABLE:
+        return None, None
+        
     if model is None:
         st.error("Model not loaded properly. Please refresh the page.")
         return None, None
@@ -61,9 +74,39 @@ def generate_music(model, prompt):
         st.error(f"Error generating music: {str(e)}")
         return None, None
 
+def show_deployment_notice():
+    """Show notice about deployment limitations"""
+    st.error("🚫 AudioCraft Dependencies Not Available")
+    st.markdown("""
+    **This app requires AudioCraft and PyTorch which are not available in this deployment environment.**
+    
+    ### 📋 To run locally:
+    1. Clone the repository: `git clone https://github.com/mobatusi/audio_craft`
+    2. Install requirements: `pip install torch torchaudio audiocraft`
+    3. Run: `streamlit run app.py`
+    
+    ### 🔧 Technical Details:
+    AudioCraft requires significant computational resources and system dependencies (like PyAV and ffmpeg) 
+    that are not available in Streamlit Cloud's free tier.
+    
+    ### 🎯 Alternative Deployment Options:
+    - **Hugging Face Spaces** (with GPU support)
+    - **Google Colab** (with GPU runtime)
+    - **Local development environment**
+    """)
+    
+    if 'IMPORT_ERROR' in globals():
+        with st.expander("Show Import Error Details"):
+            st.code(IMPORT_ERROR)
+
 def main():
     st.title("🎵 AudioCraft Music Generator")
     st.markdown("Generate original music compositions using Meta AI's AudioCraft framework")
+    
+    # Check if AudioCraft is available
+    if not AUDIOCRAFT_AVAILABLE:
+        show_deployment_notice()
+        return
     
     # Sidebar for predefined prompts
     with st.sidebar:
