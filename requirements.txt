@@ -5,3 +5,4 @@ torchaudio==2.1.0
 ipywidgets==8.1.6
 numpy==1.24.3
 streamlit>=1.28.0
+torch==2.1.0
