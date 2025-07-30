@@ -1,8 +1,8 @@
 import streamlit as st
 import torch
-from audiocraft.models import MusicGen
 import warnings
 import os
+import sys
 
 # Suppress all warnings
 warnings.filterwarnings("ignore")
@@ -14,6 +14,14 @@ if sys.platform == "darwin":
     import logging
     logging.getLogger().setLevel(logging.ERROR)
 
+# Try to import AudioCraft with fallback
+try:
+    from audiocraft.models import MusicGen
+    AUDIOCRAFT_AVAILABLE = True
+except ImportError:
+    AUDIOCRAFT_AVAILABLE = False
+    st.error("⚠️ AudioCraft not available. Please install it manually or check the deployment logs.")
+
 st.set_page_config(
     page_title="AudioCraft Music Generator",
     page_icon="🎵",
@@ -24,6 +32,10 @@ st.set_page_config(
 @st.cache_resource
 def load_model():
     """Load the MusicGen model and cache it for reuse"""
+    if not AUDIOCRAFT_AVAILABLE:
+        st.error("AudioCraft is not available. Cannot load model.")
+        return None
+    
     try:
         with st.spinner("Loading MusicGen model... This may take a moment."):
             model = MusicGen.get_pretrained('facebook/musicgen-small')
